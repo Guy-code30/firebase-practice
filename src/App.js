@@ -1,16 +1,31 @@
 import React from "react";
 import "./App.css";
-import { auth } from "./firebase/init";
+import { auth, db } from "./firebase/init";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
 } from "firebase/auth";
 
 function App() {
   const [user, setUser] = React.useState({});
   const [loading, setLoading] = React.useState(true);
+
+  function createPost() {
+    const post = {
+      title: "Land My first Job",
+      description: "I am looking for a job",
+    };
+    addDoc(collection(db, "posts"), post);
+  }
+
+
+  async function getPosts() {
+    const data = await getDocs(collection(db, "posts"));
+    console.log(data);
+  }
 
   React.useEffect(() => {
     setLoading(false);
@@ -27,7 +42,7 @@ function App() {
     console.log("register");
     createUserWithEmailAndPassword(auth, "email@email.com", "test123")
       .then((user) => {
-        console.log9(user);
+        console.log(user);
       })
       .catch((error) => {
         console.log(error);
@@ -57,7 +72,9 @@ function App() {
       <button onClick={register}>Register</button>
       <button onClick={login}>Login</button>
       <button onClick={logout}>Log out</button>
-      {loading ? 'loading...' : user.email}
+      {loading ? "loading..." : user.email}
+      <button onClick={createPost}>Create Post</button>
+      <button onClick={getPosts}>Get Posts</button>
     </div>
   );
 }
